@@ -17,15 +17,6 @@ data Constant = ConstClass Word16 |
     ConstMethodType Word8 Word16 |
     ConstInvokeDynamic Word16 Word16 deriving Show
 
-data ClassFile = ClassFile {
-        magic :: Word32, -- CAFE BABE
-
-        minor :: Word16,
-        major :: Word16,
-
-        constantPool :: [Constant]
-    } deriving Show
-
 cCONSTANT_Class = 7
 cCONSTANT_Fieldref = 9
 cCONSTANT_Methodref = 10
@@ -101,18 +92,47 @@ getConstantPool x = do
     next <- getConstantPool (x - 1)
     return $ info:next
 
+getInterfaces x = return []
+getInterfaces x = do
+    interfaceIndex <- getWord16be
+    rest <- getInterfaces (x - 1)
+    return $ interfaceIndex:rest
+
+data ClassFile = ClassFile {
+        magic :: Word32, -- CAFE BABE
+
+        minor :: Word16,
+        major :: Word16,
+
+        constantPool :: [Constant],
+
+        access_flags :: Word16,
+        this_class :: Word16,
+        super_class :: Word16,
+
+        interfaces :: [Word16]
+        
+    } deriving Show
+
 readJCF = do
     magic <- getWord32be
     minor <- getWord16be
     major <- getWord16be
     constant_pool_count <- getWord16be
     constant_pool <- getConstantPool (fromIntegral constant_pool_count)
-    return $ ClassFile magic minor major constant_pool
-    {-access_flags <- getWord16be
+    access_flags <- getWord16be
     this_class <- getWord16be
     super_class <- getWord16be
     interfaces_count <- getWord16be
-    interfaces <- getInterfacesCount interfaces_count
+    traceShow interfaces_count (return interfaces_count)
+    interfaces <- getInterfaces (fromIntegral interfaces_count)
+    return (ClassFile magic minor major
+        constant_pool
+        access_flags
+        this_class
+        super_class
+        interfaces)
+    {-interfaces <- getInterfacesCount interfaces_count
     fields_count <- getWord16be
     fields <- getFields fields_count
     methods_count <- getWord16be
