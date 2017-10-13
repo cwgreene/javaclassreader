@@ -17,6 +17,8 @@ data Constant = ConstClass Word16 |
     ConstMethodType Word8 Word16 |
     ConstInvokeDynamic Word16 Word16 deriving Show
 
+data Field = 
+
 cCONSTANT_Class = 7
 cCONSTANT_Fieldref = 9
 cCONSTANT_Methodref = 10
@@ -111,6 +113,8 @@ data ClassFile = ClassFile {
         super_class :: Word16,
 
         interfaces :: [Word16]
+
+        fields :: [Field]
         
     } deriving Show
 
@@ -124,18 +128,17 @@ readJCF = do
     this_class <- getWord16be
     super_class <- getWord16be
     interfaces_count <- getWord16be
-    traceShow interfaces_count (return interfaces_count)
     interfaces <- getInterfaces (fromIntegral interfaces_count)
+    fields_count <- getWord16be
+    fields <- getFields (fromIntegral fields_count)
     return (ClassFile magic minor major
         constant_pool
         access_flags
         this_class
         super_class
-        interfaces)
-    {-interfaces <- getInterfacesCount interfaces_count
-    fields_count <- getWord16be
-    fields <- getFields fields_count
-    methods_count <- getWord16be
+        interfaces
+        fields)
+    {-methods_count <- getWord16be
     methods <- getMethods methods_count
     attributes_count <- getWord16be
     attributes <- attributes attributes_count -}
