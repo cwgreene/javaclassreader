@@ -115,8 +115,11 @@ data ClassFile = ClassFile {
 
         interfaces :: [Word16],
 
-        fields :: [Field]
+        fields :: [Field],
+
+        methods :: [Method],
         
+        cl_attributes :: [Attribute] 
     } deriving Show
 
 data Attribute = Attribute {
@@ -157,6 +160,27 @@ getFields n = do
     rest <- getFields (n - 1)
     return (field:rest)
 
+data Method = Method {
+        m_access_flags :: Word16,
+        m_name_index :: Word16,
+        m_descriptor_index :: Word16,
+        m_attributes :: [Attribute]
+    } deriving Show
+
+getMethod = do
+    access_flags <- getWord16be
+    name_index <- getWord16be
+    descriptor_index <- getWord16be
+    attribute_count <- getWord16be
+    attributes <- getAttributes (fromIntegral attribute_count)
+    return (Method access_flags name_index descriptor_index attributes)
+
+getMethods 0 = return []
+getMethods n = do
+    method <- getMethod
+    rest <- getMethods (n - 1)
+    return (method:rest)
+
 readJCF = do
     magic <- getWord32be
     minor <- getWord16be
@@ -170,17 +194,19 @@ readJCF = do
     interfaces <- getInterfaces (fromIntegral interfaces_count)
     fields_count <- getWord16be
     fields <- getFields (fromIntegral fields_count)
+    methods_count <- getWord16be
+    methods <- getMethods (fromIntegral methods_count)
+    attributes_count <- getWord16be
+    attributes <- getAttributes (fromIntegral attributes_count)
     return (ClassFile magic minor major
         constant_pool
         access_flags
         this_class
         super_class
         interfaces
-        fields)
-    {-methods_count <- getWord16be
-    methods <- getMethods methods_count
-    attributes_count <- getWord16be
-    attributes <- attributes attributes_count -}
+        fields
+        methods
+        attributes)
 
 main = do
     input <- BL.getContents
