@@ -1,4 +1,7 @@
+module Main where
+
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString as B
 import Data.Binary.Get
 import Data.Word
 import qualified Data.ByteString.UTF8 as UTF8
@@ -16,8 +19,6 @@ data Constant = ConstClass Word16 |
     ConstMethodHandle Word8 Word16 |
     ConstMethodType Word8 Word16 |
     ConstInvokeDynamic Word16 Word16 deriving Show
-
-data Field = 
 
 cCONSTANT_Class = 7
 cCONSTANT_Fieldref = 9
@@ -108,15 +109,53 @@ data ClassFile = ClassFile {
 
         constantPool :: [Constant],
 
-        access_flags :: Word16,
+        c_access_flags :: Word16,
         this_class :: Word16,
         super_class :: Word16,
 
-        interfaces :: [Word16]
+        interfaces :: [Word16],
 
         fields :: [Field]
         
     } deriving Show
+
+data Attribute = Attribute {
+        attribute_name_index :: Word16,
+        info :: B.ByteString
+    } deriving Show
+
+getAttribute = do
+    attribute_name_index <- getWord16be
+    attribute_length <- getWord32be
+    info <- getByteString (fromIntegral attribute_length)
+    return (Attribute attribute_name_index info)
+
+getAttributes 0 = return []
+getAttributes n = do
+    attr <- getAttribute
+    rest <- getAttributes (n - 1)
+    return (attr:rest)
+
+data Field = Field {
+        f_access_flags :: Word16,
+        name_index :: Word16,
+        descriptor_index :: Word16,
+        attributes :: [Attribute]
+    } deriving Show
+
+getField = do
+    access_flags <- getWord16be
+    name_index <- getWord16be
+    descriptor_index <- getWord16be
+    attributes_count <- getWord16be
+    attributes <- getAttributes (fromIntegral attributes_count)
+    return (Field access_flags name_index descriptor_index attributes)
+
+getFields 0 = return []
+getFields n = do
+    field <- getField
+    rest <- getFields (n - 1)
+    return (field:rest)
 
 readJCF = do
     magic <- getWord32be
