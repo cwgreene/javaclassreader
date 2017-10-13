@@ -17,6 +17,15 @@ data Constant = ConstClass Word16 |
     ConstMethodType Word8 Word16 |
     ConstInvokeDynamic Word16 Word16 deriving Show
 
+data ClassFile = ClassFile {
+        magic :: Word32, -- CAFE BABE
+
+        minor :: Word16,
+        major :: Word16,
+
+        constantPool :: [Constant]
+    } deriving Show
+
 cCONSTANT_Class = 7
 cCONSTANT_Fieldref = 9
 cCONSTANT_Methodref = 10
@@ -98,7 +107,7 @@ readJCF = do
     major <- getWord16be
     constant_pool_count <- getWord16be
     constant_pool <- getConstantPool (fromIntegral constant_pool_count)
-    return constant_pool
+    return $ ClassFile magic minor major constant_pool
     {-access_flags <- getWord16be
     this_class <- getWord16be
     super_class <- getWord16be
