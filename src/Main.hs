@@ -5,6 +5,8 @@ import Method
 import Attribute
 import Field
 
+import Text.Pretty.Simple
+
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString as B
 import Data.Binary.Get
@@ -65,5 +67,5 @@ readJCF = do
 
 main = do
     input <- BL.getContents
-    print $ runGet readJCF input
+    pPrint $ runGet readJCF input
 
