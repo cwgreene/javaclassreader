@@ -75,3 +75,50 @@ ClassFile
     }
 ```
 
+Javap for comparison:
+```
+$ javap -v Test.class
+Classfile /home/chris/projects/javaclassreader/Test.class
+  Last modified Oct 12, 2017; size 221 bytes
+  MD5 checksum ff962e2a245f190df9c02a85805cbdfc
+  Compiled from "Test.java"
+class Test
+  minor version: 0
+  major version: 52
+  flags: ACC_SUPER
+Constant pool:
+   #1 = Methodref          #4.#13         // java/lang/Object."<init>":()V
+   #2 = Fieldref           #3.#14         // Test.a:I
+   #3 = Class              #15            // Test
+   #4 = Class              #16            // java/lang/Object
+   #5 = Utf8               a
+   #6 = Utf8               I
+   #7 = Utf8               <init>
+   #8 = Utf8               ()V
+   #9 = Utf8               Code
+  #10 = Utf8               LineNumberTable
+  #11 = Utf8               SourceFile
+  #12 = Utf8               Test.java
+  #13 = NameAndType        #7:#8          // "<init>":()V
+  #14 = NameAndType        #5:#6          // a:I
+  #15 = Utf8               Test
+  #16 = Utf8               java/lang/Object
+{
+  Test();
+    descriptor: ()V
+    flags:
+    Code:
+      stack=2, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: iconst_3
+         6: putfield      #2                  // Field a:I
+         9: return
+      LineNumberTable:
+        line 3: 0
+        line 4: 4
+        line 5: 9
+}
+SourceFile: "Test.java"
+```
