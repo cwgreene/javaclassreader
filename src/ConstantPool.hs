@@ -8,17 +8,38 @@ import Data.Word
 import Data.Binary.Get
 import qualified Data.ByteString.UTF8 as UTF8
 
-data Constant = ConstClass Word16 |
-    ConstFieldRef Word16 Word16 |
-    ConstMethodRef Word16 Word16 |
-    ConstInterfaceMethodRef Word16 Word16 |
-    ConstString Word16 | ConstInt Word32 | ConstFloat Word32 |
-    ConstLong Word32 Word32 | ConstDouble Word32 Word32 |
+-- Tags
+type Tag = Word8
+type ReferenceKind = Word8
+
+-- Constant Pool References
+type NameIx = Word16
+type ClassIx = Word16
+type NameAndTypeIx = Word16
+type StringIx = Word16
+type DescriptorIx = Word16
+type ReferenceIx = Word16
+type BootstrapMethodAttrIx = Word16
+
+-- Word 32s
+type FloatWord = Word32
+type IntWord = Word32
+type HighIntWord = Word32
+type LoIntWord = Word32
+type HighFloatWord = Word32
+type LoFloatWord = Word32
+
+data Constant = ConstClass NameIx |
+    ConstFieldRef ClassIx NameAndTypeIx |
+    ConstMethodRef ClassIx NameAndTypeIx |
+    ConstInterfaceMethodRef ClassIx NameAndTypeIx |
+    ConstString StringIx | ConstInt IntWord | ConstFloat FloatWord |
+    ConstLong HighIntWord LoIntWord | ConstDouble HighFloatWord LoFloatWord |
     ConstUtf8 String |
-    ConstNameAndType Word16 Word16 |
-    ConstMethodHandle Word8 Word16 |
-    ConstMethodType Word8 Word16 |
-    ConstInvokeDynamic Word16 Word16 deriving Show
+    ConstNameAndType NameIx DescriptorIx |
+    ConstMethodHandle ReferenceKind ReferenceIx |
+    ConstMethodType DescriptorIx |
+    ConstInvokeDynamic BootstrapMethodAttrIx NameAndTypeIx deriving Show
 
 cCONSTANT_Class = 7
 cCONSTANT_Fieldref = 9
@@ -79,9 +100,8 @@ getConstantPoolType 15 = do
     reference_index <- getWord16be
     return $ ConstMethodHandle reference_kind reference_index
 getConstantPoolType 16 = do
-    reference_kind <- getWord8
-    reference_index <- getWord16be
-    return $ ConstMethodType reference_kind reference_index
+    descriptor_index <- getWord16be
+    return $ ConstMethodType descriptor_index
 getConstantPoolType 18 = do
     bootstrap_method_attr_index <- getWord16be
     name_and_type_index <- getWord16be

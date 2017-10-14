@@ -35,6 +35,7 @@ data ClassFile = ClassFile {
         
         cl_attributes :: [Attribute] 
     } deriving Show
+
 readJCF = do
     magic <- getWord32be
     minor <- getWord16be
