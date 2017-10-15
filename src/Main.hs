@@ -5,7 +5,8 @@ import Method
 import Attribute
 import Field
 
-import Text.Pretty.Simple
+--import Text.Pretty.Simple
+import Text.Show.Pretty
 
 import qualified Data.ByteString.Lazy as BL
 import qualified Data.ByteString as B

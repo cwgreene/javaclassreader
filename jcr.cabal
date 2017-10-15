@@ -23,7 +23,8 @@ executable jcr
     bytestring,
     binary,
     utf8-string,
-    pretty-simple
+    pretty-simple,
+    pretty-show
   hs-source-dirs:      src
   ghc-options: -optl-static -optl-pthread
   default-language:    Haskell2010
