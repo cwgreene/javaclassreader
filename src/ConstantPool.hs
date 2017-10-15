@@ -1,5 +1,6 @@
 module ConstantPool where
 
+import Types
 import Attribute
 
 import qualified Data.ByteString.Lazy as BL
@@ -7,27 +8,6 @@ import qualified Data.ByteString as B
 import Data.Word
 import Data.Binary.Get
 import qualified Data.ByteString.UTF8 as UTF8
-
--- Tags
-type Tag = Word8
-type ReferenceKind = Word8
-
--- Constant Pool References
-type NameIx = Word16
-type ClassIx = Word16
-type NameAndTypeIx = Word16
-type StringIx = Word16
-type DescriptorIx = Word16
-type ReferenceIx = Word16
-type BootstrapMethodAttrIx = Word16
-
--- Word 32s
-type FloatWord = Word32
-type IntWord = Word32
-type HighIntWord = Word32
-type LoIntWord = Word32
-type HighFloatWord = Word32
-type LoFloatWord = Word32
 
 data Constant = ConstClass NameIx |
     ConstFieldRef ClassIx NameAndTypeIx |
@@ -115,7 +95,7 @@ getConstantPool x = do
     next <- getConstantPool (x - 1)
     return $ info:next
 
-getInterfaces x = return []
+getInterfaces 0 = return []
 getInterfaces x = do
     interfaceIndex <- getWord16be
     rest <- getInterfaces (x - 1)

@@ -5,10 +5,22 @@ import qualified Data.ByteString as B
 import Data.Word
 import Data.Binary.Get
 
-data Attribute = Attribute {
+data Attribute =
+    Attribute {
         attribute_name_index :: Word16,
         info :: B.ByteString
-    } deriving Show
+    } |
+    ConstantValue {
+    } |
+    Code {
+    } |
+    StackMapTable {
+    } |
+    Exceptions {
+    } |
+    BootstrapMethods {
+    }
+    deriving Show
 
 getAttribute = do
     attribute_name_index <- getWord16be
