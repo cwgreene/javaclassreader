@@ -15,6 +15,7 @@ import Data.Word
 import qualified Data.ByteString.UTF8 as UTF8
 
 import Numeric
+import System.Environment
 
 import Debug.Trace
 
@@ -73,7 +74,13 @@ readJCF = do
         methods
         attributes)
 
-main = do
-    input <- BL.getContents
+readFiles [] = return ()
+readFiles (f:files) = do
+    input <- BL.readFile f
     pPrint $ runGet readJCF input
+    readFiles files
+
+main = do
+    filePaths <- getArgs
+    readFiles filePaths
 
