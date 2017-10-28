@@ -14,12 +14,19 @@ import Data.Binary.Get
 import Data.Word
 import qualified Data.ByteString.UTF8 as UTF8
 
+import Numeric
+
 import Debug.Trace
 
 import ConstantPool
 
+data Hex32 = Hex32 Word32
+
+instance Show Hex32 where
+    show (Hex32 x) = "0x" ++ (showHex x "")
+
 data ClassFile = ClassFile {
-        magic :: Word32, -- CAFE BABE
+        magic :: Hex32, -- CAFE BABE
 
         minor :: Word16,
         major :: Word16,
@@ -56,7 +63,7 @@ readJCF = do
     methods <- getMethods (fromIntegral methods_count)
     attributes_count <- getWord16be
     attributes <- getAttributes (fromIntegral attributes_count)
-    return (ClassFile magic minor major
+    return (ClassFile (Hex32 magic) minor major
         constant_pool
         access_flags
         this_class
