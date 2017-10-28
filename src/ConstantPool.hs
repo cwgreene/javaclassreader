@@ -1,4 +1,4 @@
-module ConstantPool where
+odule ConstantPool where
 
 import Types
 import Attribute
@@ -8,6 +8,8 @@ import qualified Data.ByteString as B
 import Data.Word
 import Data.Binary.Get
 import qualified Data.ByteString.UTF8 as UTF8
+
+import Debug.Trace
 
 data Constant = ConstClass NameIx |
     ConstFieldRef ClassIx NameAndTypeIx |
@@ -87,12 +89,16 @@ getConstantPoolType 18 = do
     name_and_type_index <- getWord16be
     return $ ConstInvokeDynamic bootstrap_method_attr_index name_and_type_index
 
+remainingPool 5 x = x - 2
+remainingPool 6 x = x - 2
+remainingPool _ x = x - 1
+
 getConstantPool :: Int -> Get [Constant]
 getConstantPool 1 = return []
 getConstantPool x = do
     tag <- getWord8
     info <- getConstantPoolType (fromIntegral tag)
-    next <- getConstantPool (x - 1)
+    next <- getConstantPool (remainingPool tag x)
     return $ info:next
 
 getInterfaces 0 = return []
