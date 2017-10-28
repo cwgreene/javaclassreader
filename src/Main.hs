@@ -52,7 +52,7 @@ readJCF = do
     minor <- getWord16be
     major <- getWord16be
     constant_pool_count <- getWord16be
-    constant_pool <- getConstantPool (fromIntegral constant_pool_count)
+    constant_pool <- getConstantPool (fromIntegral constant_pool_count - 1)
     access_flags <- getWord16be
     this_class <- getWord16be
     super_class <- getWord16be
@@ -76,6 +76,7 @@ readJCF = do
 
 readFiles [] = return ()
 readFiles (f:files) = do
+    putStrLn f
     input <- BL.readFile f
     pPrint $ runGet readJCF input
     readFiles files

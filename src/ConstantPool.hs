@@ -9,6 +9,8 @@ import Data.Word
 import Data.Binary.Get
 import qualified Data.ByteString.UTF8 as UTF8
 
+import Debug.Trace
+
 data Constant = ConstClass NameIx |
     ConstFieldRef ClassIx NameAndTypeIx |
     ConstMethodRef ClassIx NameAndTypeIx |
@@ -91,6 +93,7 @@ getConstantPool :: Int -> Get [Constant]
 getConstantPool 1 = return []
 getConstantPool x = do
     tag <- getWord8
+    trace (show tag) (return ())
     info <- getConstantPoolType (fromIntegral tag)
     next <- getConstantPool (x - 1)
     return $ info:next
