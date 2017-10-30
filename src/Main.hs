@@ -52,7 +52,7 @@ readJCF = do
     minor <- getWord16be
     major <- getWord16be
     constant_pool_count <- getWord16be
-    constant_pool <- getConstantPool (fromIntegral constant_pool_count) (fromIntegral constant_pool_count)
+    constant_pool <- getConstantPool (fromIntegral constant_pool_count)
     access_flags <- getWord16be
     this_class <- getWord16be
     super_class <- getWord16be
