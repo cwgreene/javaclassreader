@@ -21,7 +21,8 @@ data Constant = ConstClass NameIx |
     ConstNameAndType NameIx DescriptorIx |
     ConstMethodHandle ReferenceKind ReferenceIx |
     ConstMethodType DescriptorIx |
-    ConstInvokeDynamic BootstrapMethodAttrIx NameAndTypeIx deriving Show
+    ConstInvokeDynamic BootstrapMethodAttrIx NameAndTypeIx |
+    ConstUnused deriving Show
 
 cCONSTANT_Class = 7
 cCONSTANT_Fieldref = 9
@@ -99,7 +100,10 @@ getConstantPool x = do
     tag <- getWord8
     info <- getConstantPoolType (fromIntegral tag)
     next <- getConstantPool (remainingPool tag x)
-    return $ info:next
+    if (tag == cCONSTANT_Double || tag == cCONSTANT_Long) then
+        return $ info:(ConstUnused:next)
+    else
+        return $ info:next
 
 getInterfaces 0 = return []
 getInterfaces x = do
